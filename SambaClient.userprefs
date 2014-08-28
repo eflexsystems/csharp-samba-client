@@ -1,10 +1,11 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="SambaClient/SambaShare.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="SambaClientTests/Test.cs">
     <Files>
       <File FileName="SambaClient/SambaShare.cs" Line="1" Column="1" />
-      <File FileName="SambaClient/SambaTreeParser.cs" Line="59" Column="59" />
-      <File FileName="SambaClient/ProcessHelper.cs" Line="52" Column="52" />
+      <File FileName="SambaClient/SambaTreeParser.cs" Line="1" Column="1" />
+      <File FileName="SambaClient/ProcessHelper.cs" Line="1" Column="1" />
+      <File FileName="SambaClientTests/Test.cs" Line="19" Column="19" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
