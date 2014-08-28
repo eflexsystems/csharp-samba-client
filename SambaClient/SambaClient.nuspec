@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package >
+  <metadata>
+    <id>$id$</id>
+    <version>$version$</version>
+    <title>$title$</title>
+    <authors>$author$</authors>
+    <owners>$author$</owners>
+    <licenseUrl>https://raw.githubusercontent.com/eflexsystems/csharp-samba-client/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/eflexsystems/csharp-samba-client</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>$description$</description>
+    <releaseNotes>First Release</releaseNotes>
+    <copyright>Copyright eFlex Systems 2014</copyright>
+    <tags>samba smb cifs smbclient</tags>
+  </metadata>
+</package>
