@@ -5,11 +5,11 @@ using System.Runtime.CompilerServices;
 // Change them to the values specific to your project.
 
 [assembly: AssemblyTitle ("SambaClient")]
-[assembly: AssemblyDescription ("")]
+[assembly: AssemblyDescription ("Wrapper for smbclient command line utility, requires samba to be installed")]
 [assembly: AssemblyConfiguration ("")]
-[assembly: AssemblyCompany ("")]
-[assembly: AssemblyProduct ("")]
-[assembly: AssemblyCopyright ("jacob")]
+[assembly: AssemblyCompany ("eFlex Systems")]
+[assembly: AssemblyProduct ("SambaClient")]
+[assembly: AssemblyCopyright ("eFlex Systems")]
 [assembly: AssemblyTrademark ("")]
 [assembly: AssemblyCulture ("")]
 
