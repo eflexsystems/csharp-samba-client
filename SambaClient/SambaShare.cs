@@ -80,7 +80,7 @@ namespace SambaClient
 			var output = (result + err).ToLower();
 
 			// apparently samba is weird and writes successful output to standard error
-			if (output.Contains("error") || output.Contains("fail"))
+			if (output.Contains("error") || output.Contains("fail") || output.Contains("not enough"))
 				throw new IOException("Could not run command against samba path");
 
 			return result;
