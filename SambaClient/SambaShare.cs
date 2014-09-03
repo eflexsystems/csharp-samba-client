@@ -7,8 +7,8 @@ namespace SambaClient
 {
 	public interface ISambaShare
 	{
-		Task<string> SendFile(string path, string destination = null);
-		Task<string> GetFile(string path, string destination);
+		void SendFile(string path, string destination = null);
+		void GetFile(string path, string destination);
 	}
 
 	public class SambaShare : ISambaShare
@@ -35,23 +35,23 @@ namespace SambaClient
 		}
 
 		// smbclient -U guest "//server1/f" -c "put hello.txt"
-		public async Task<string> SendFile(string path, string destination = null)
+		public void SendFile(string path, string destination = null)
 		{
 			var filePath   = Path.GetFileName(path);
 			var workingDir = Path.GetDirectoryName(path);
 			var cmd        = String.Format("put {0} {1}", filePath, destination);
 
-			return await RunCommand(cmd, workingDir);
+			RunCommand(cmd, workingDir);
 		}
 
 		// smbclient -U guest "//server1/f" -c "put hello.txt" 
-		public async Task<string> GetFile(string path, string destination)
+		public void GetFile(string path, string destination)
 		{
 			var destinationFileName = Path.GetFileName(destination);
 			var workingDir          = Path.GetDirectoryName(destination);
 			var cmd                 = String.Format("get {0} {1}", path, destinationFileName);
 
-			return await RunCommand(cmd, workingDir);
+			RunCommand(cmd, workingDir);
 		}
 
 		private string GetConnectionString()
@@ -63,27 +63,16 @@ namespace SambaClient
 			return connStr;
 		}
 
-		private async Task<string> RunCommand(string cmd, string workingDir)
+		private void RunCommand(string cmd, string workingDir)
 		{
 			var arguments = string.Format(@"{0} -c '{1}' '{2}'", GetConnectionString(), cmd, Address);
 			arguments     = ProcessHelper.EscapeArguments(arguments);
 			var process   = ProcessHelper.Run("smbclient", arguments, workingDir);
 
-			string result = "";
-			while (!process.StandardOutput.EndOfStream)
-				result += await process.StandardOutput.ReadLineAsync();
+			process.WaitForExit();
 
-			string err = "";
-			while (!process.StandardError.EndOfStream)
-				err += await process.StandardError.ReadLineAsync();
-
-			var output = (result + err).ToLower();
-
-			// apparently samba is weird and writes successful output to standard error
-			if (output.Contains("error") || output.Contains("fail") || output.Contains("not enough"))
+			if (process.ExitCode != 0)
 				throw new IOException("Could not run command against samba path");
-
-			return result;
 		}
 
 		public static async Task<IList<SambaShare>> ListShares()
