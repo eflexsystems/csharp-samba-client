@@ -54,18 +54,27 @@ namespace SambaClient
 			RunCommand(cmd, workingDir);
 		}
 
+		// smbclient -U guest "//server1/f" -c "del hello.txt" 
+		public void DeleteFile(string path)
+		{
+			var cmd = String.Format("del {0}", path);
+			RunCommand(cmd, "/");
+		}
+
 		private string GetConnectionString()
 		{
 			var connStr = String.Format("-U {0} ", UserName);
 
-			connStr += String.IsNullOrEmpty(Password) ? @"-N" : Password;
+			if (String.IsNullOrEmpty(Password))
+				connStr += @"-N";
 
 			return connStr;
 		}
 
 		private void RunCommand(string cmd, string workingDir)
 		{
-			var arguments = string.Format(@"{0} -c '{1}' '{2}'", GetConnectionString(), cmd, Address);
+			var arguments = string.Format(@"{0} -c '{1}' '{2}' '{3}'", GetConnectionString(), cmd, Address, Password);
+
 			arguments     = ProcessHelper.EscapeArguments(arguments);
 			var process   = ProcessHelper.Run("smbclient", arguments, workingDir);
 
