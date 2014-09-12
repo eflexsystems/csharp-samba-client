@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.IO;
+using System.Diagnostics;
 
 namespace SambaClient
 {
@@ -71,17 +72,44 @@ namespace SambaClient
 			return connStr;
 		}
 
-		private void RunCommand(string cmd, string workingDir)
+		private Process RunCommand(string cmd, string workingDir)
 		{
 			var arguments = string.Format(@"{0} -c '{1}' '{2}' '{3}'", GetConnectionString(), cmd, Address, Password);
 
-			arguments     = ProcessHelper.EscapeArguments(arguments);
-			var process   = ProcessHelper.Run("smbclient", arguments, workingDir);
+			arguments   = ProcessHelper.EscapeArguments(arguments);
+			var process = ProcessHelper.Run("smbclient", arguments, workingDir);
 
 			process.WaitForExit();
 
 			if (process.ExitCode != 0)
 				throw new IOException("Could not run command against samba path");
+
+			return process;
+		}
+
+		// smbclient -U guest -N "//server1/f" -c "dir eflex*.tgz"
+		// Generate and return list of filenames in remotePath where each file's name begins with fileNamePrefix (e.g. eflex) and ends with fileNameSuffix (e.g. .tgz): 
+		public async Task<List<string>> ListFiles(string fileNamePrefix, string fileNameSuffix)
+		{
+			var cmd      = String.Format("dir {0}*{1}", fileNamePrefix, fileNameSuffix);
+			var process  = RunCommand(cmd, "/");
+			var fileList = new List<string>();
+
+			using (var reader = new StreamReader(process.StandardOutput.BaseStream))
+			{
+				while (!reader.EndOfStream)
+				{
+					var line = await reader.ReadLineAsync();
+					line 	 = line.Trim();
+
+					if (line.StartsWith(fileNamePrefix)) 
+					{
+						var parsed = line.Substring(0, line.IndexOf(fileNameSuffix) + fileNameSuffix.Length);
+						fileList.Add(parsed);
+					}
+				}
+				return fileList;
+			}
 		}
 
 		public static async Task<IList<SambaShare>> ListShares()
@@ -91,38 +119,6 @@ namespace SambaClient
 			var process = ProcessHelper.Run("smbtree", "-U guest -N");
 
 			return await parser.Parse(process.StandardOutput.BaseStream);
-		}
-
-		// smbclient -U guest -N "//server1/f" -c "dir eflex*.tgz"
-		// Generate and return list of filenames in remotePath where each file's name begins with fileNamePrefix (e.g. eflex) and ends with fileNameSuffix (e.g. .tgz): 
-		public static async Task<List<string>> ListFiles(string fileNamePrefix, string fileNameSuffix, string remotePath, string userName, string password)
-		{
-			var cmd        	= String.Format("dir {0}", String.Concat(fileNamePrefix, "*", fileNameSuffix));
-			var connStr 	= String.Format("-U {0} ", userName);
-			connStr 		+= String.IsNullOrEmpty(password) ? @"-N" : password;
-			var arguments 	= string.Format(@"{0} -c '{1}' '{2}'", connStr, cmd, remotePath);
-			arguments     	= ProcessHelper.EscapeArguments(arguments);
-
-			var process   	= ProcessHelper.Run("smbclient", arguments);
-
-			List<string> fileList = new List<string>();
-
-			using (var reader = new StreamReader(process.StandardOutput.BaseStream))
-			{
-				while (!reader.EndOfStream)
-				{
-					var line = await reader.ReadLineAsync();
-					line = line.Trim ();
-					string parsed = null;	
-
-					if (line.StartsWith(fileNamePrefix)) 
-					{
-						parsed = line.Substring (0, line.IndexOf(fileNameSuffix) + fileNameSuffix.Length);
-						fileList.Add (parsed);
-					}
-				}
-				return fileList;
-			}
 		}
 	}
 }
