@@ -59,7 +59,7 @@ namespace SambaClient
 		public void DeleteFile(string path)
 		{
 			var cmd = String.Format("del {0}", path);
-			RunCommand(cmd, "/");
+			RunCommand(cmd);
 		}
 
 		private string GetConnectionString()
@@ -72,7 +72,7 @@ namespace SambaClient
 			return connStr;
 		}
 
-		private Process RunCommand(string cmd, string workingDir)
+		private Process RunCommand(string cmd, string workingDir = @"/")
 		{
 			var arguments = string.Format(@"{0} -c '{1}' '{2}' '{3}'", GetConnectionString(), cmd, Address, Password);
 
@@ -92,7 +92,7 @@ namespace SambaClient
 		public async Task<List<string>> ListFiles(string fileNamePrefix, string fileNameSuffix)
 		{
 			var cmd      = String.Format("dir {0}*{1}", fileNamePrefix, fileNameSuffix);
-			var process  = RunCommand(cmd, "/");
+			var process  = RunCommand(cmd);
 			var fileList = new List<string>();
 
 			using (var reader = new StreamReader(process.StandardOutput.BaseStream))
